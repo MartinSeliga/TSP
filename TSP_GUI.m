@@ -150,7 +150,7 @@ function pushbutton1_Callback(hObject, ~, handles)
         tic;
         handles = greedy(handles);
     else
-        % not yet too
+        % not yet
     end
     q = datestr(toc/86400, 'MM:SS.FFF');
     handles.text7.String = strcat({'Complete! Runtime '}, q,...

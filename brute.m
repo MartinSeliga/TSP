@@ -26,7 +26,7 @@ function handles = brute(handles)
             handles.permutation = next_perm(handles.permutation);
             handles.permCities = handles.cities(handles.permutation,:);
         end
-    else
+    elseif (handles.draw == 3)
         for i = 1:z
             d = distance(handles.permCities);
             if (d < handles.bestDist)
@@ -39,4 +39,26 @@ function handles = brute(handles)
         cla(handles.axes1);
         draw(handles, 3);        
     end
+    %{
+    it's not possible to run computing in parallel due to 
+    dependencies of permutation
+    next_perm is clearly dependant on previous permutation :-/
+    
+    elseif (handles.draw == 3)
+        cities = handles.cities;
+        perm = 1:handles.CoC;
+        best = handles.bestDist;
+        bestPerm = perm;
+        parfor i = 1:z
+            d = distance(cities(perm,:));
+            if (d < best)
+                best = d;
+                bestPerm = perm;
+            end
+            perm = next_perm(perm);
+        end
+        cla(handles.axes1);
+        draw(handles, 3);        
+    end
+    %}
 end
