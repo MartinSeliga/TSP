@@ -1,4 +1,4 @@
-function handles =greedy(handles)
+function handles = greedy(handles)
     n = length(handles.cities);
     distM = squareform(pdist(handles.cities));
     if (handles.draw < 3)
@@ -6,23 +6,21 @@ function handles =greedy(handles)
             d = 0;
             % current = greedy start from city i
             current = 1:n;
-            current(1) = i;
             visited = zeros(1,n);
+            current(1) = i;            
             visited(i) = 1;
             I = i;
             for j = 2:n
                 % current = greedy start from city i
                 dists = distM(I,:);
-                dists(logical(visited)) = NaN;
-                next = min(dists(~visited));
-                J = find(dists == next,1);
+                J = find(dists == min(dists(~visited)),1);
                 visited(J) = 1;
                 current(j) = J;
                 d = d+distM(I,J);
                 I = J;
-                handles.permCities = handles.cities(current,:);
-                handles.permCities = handles.permCities(1:j,:);
                 if (handles.draw == 1)
+                    handles.permCities = handles.cities(current,:);
+                    handles.permCities = handles.permCities(1:j,:);
                     cla(handles.axes1);
                     draw(handles, 4);
                     handles.text7.String = ...
@@ -59,28 +57,47 @@ function handles =greedy(handles)
     elseif (handles.draw == 3)
         tours = zeros(n,n);
         distH = zeros(1,n);
-        parfor i = 1:n
-            d = 0;
-            current = 1:n;
-            visited = zeros(1,n);
-            I = i;
-            visited(I) = 1;
-            current(1) = I;
-            for j = 2:n
-                dists = distM(I,:);
-                dists(logical(visited)) = NaN;
-                next = min(dists(~visited));
-                J = find(dists == next,1);
-                visited(J) = 1;
-                current(j) = J;
-                d = d+distM(I,J);
-                I = J;
+        if (handles.checkbox1.Value == 1)
+            parfor i = 1:n
+                d = 0;
+                current = 1:n;
+                visited = zeros(1,n);
+                visited(i) = 1;
+                current(1) = i;
+                I = i;
+                for j = 2:n
+                    dists = distM(I,:);
+                    J = find(dists == min(dists(~visited)),1);
+                    visited(J) = 1;
+                    current(j) = J;
+                    d = d+distM(I,J);
+                    I = J;
+                end
+                d = d+distM(I,i);
+                tours(i,:) = current;
+                distH(i) = d;
             end
-            d = d+distM(I,i);
-            tours(i,:) = current;
-            distH(i) = d;
+        else
+            for i = 1:n
+                d = 0;
+                current = 1:n;
+                visited = zeros(1,n);
+                visited(i) = 1;
+                current(1) = i;
+                I = i;
+                for j = 2:n
+                    dists = distM(I,:);
+                    J = find(dists == min(dists(~visited)),1);
+                    visited(J) = 1;
+                    current(j) = J;
+                    d = d+distM(I,J);
+                    I = J;
+                end
+                d = d+distM(I,i);
+                tours(i,:) = current;
+                distH(i) = d;
+            end
         end
-        
         handles.bestDist = min(distH);
         handles.bestSolution = handles.cities(...
             tours(find(distH == handles.bestDist,1),:),:);
