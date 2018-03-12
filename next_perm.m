@@ -1,11 +1,11 @@
 % https://www.quora.com/How-would-you-explain-an-algorithm-that-generates-permutations-using-lexicographic-ordering
 
 function P = next_perm(P)
-k1 = find(P(2:end) > P(1:end-1), 1, 'last') ;
-if isempty(k1)
-    k1 = 0;
+x = find(P(2:end) > P(1:end-1), 1, 'last') ;
+if isempty(x)
+    x = 0;
 else
-    k2 = find(P(k1)<P, 1, 'last');
-    P([k1 k2]) = P([k2 k1]);
+    y = find(P(x)<P, 1, 'last');
+    P([x y]) = P([y x]);
 end
-P((k1+1):end) = P(end:-1:(k1+1));
+P((x+1):end) = P(end:-1:(x+1));
