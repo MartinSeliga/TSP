@@ -1,7 +1,7 @@
 function handles = greedy(handles)
     n = length(handles.cities);
     distM = squareform(pdist(handles.cities));
-    if (handles.draw < 3)
+    if (handles.draw == 1 || handles.draw == 2)
         for i = 1:n
             d = 0;
             % current = greedy start from city i
@@ -11,7 +11,6 @@ function handles = greedy(handles)
             visited(i) = 1;
             I = i;
             for j = 2:n
-                % current = greedy start from city i
                 dists = distM(I,:);
                 J = find(dists == min(dists(~visited)),1);
                 visited(J) = 1;
@@ -77,7 +76,7 @@ function handles = greedy(handles)
                 tours(i,:) = current;
                 distH(i) = d;
             end
-        else
+        elseif (handles.checkbox1.Value == 0)
             for i = 1:n
                 d = 0;
                 current = 1:n;
