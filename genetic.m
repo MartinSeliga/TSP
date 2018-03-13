@@ -35,7 +35,7 @@ function handles = genetic(handles)
     % draw the best
     if (handles.draw == 1)
         cla(handles.axes1);
-        draw(handles, 5);
+        draw(handles, 6);
         handles.text7.String = ...
             strcat({'Running genetic...currently 1. generation.'},...
             {'Shortrest distance is '}, num2str(handles.bestDist), {'.'});
@@ -47,25 +47,20 @@ function handles = genetic(handles)
         % selection
         visited = zeros(n,1);
         order = zeros(n,1);
-        order(:,1) = handles.CoP;
-        for j = 1:n/10
+        for j = 1:n
             order(j) = find(handles.fitness == max(handles.fitness(~visited)),1);
             visited(order(j)) = 1;
         end
         handles.population = handles.population(order(:,1),:);
-        for j = 1:n
-            handles.population(j,:) = handles.population(...
-                mod(j,n/10)+1,:);
-        end
         % crossover
         
         % mutation
-        for j = n/2:n
+        for j = n/2+1:n
             handles.population(j,:) = swap(handles.population(j,:),...
-                handles.CoC/2);            
+                handles.CoC/10);            
         end
         % fitness
-        for j = 1:n
+        for j = n/10:n
             handles.fitness(j,1) = 1/(distance(handles.cities...
                 (handles.population(j,:),:))+1);
             if (handles.fitness(j,1) > handles.bestFitness)
@@ -75,10 +70,10 @@ function handles = genetic(handles)
                 handles.bestSolution = handles.cities(handles.population(j,:),:);
             end
         end
-        % draw
+        % draw the best in generation i
         if (handles.draw == 1)
             cla(handles.axes1);
-            draw(handles, 5);
+            draw(handles, 6);
             handles.text7.String = ...
                 strcat({'Running genetic...currently '},num2str(i),...
                 {'. generation. Shortrest distance is '}, num2str(...

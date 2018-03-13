@@ -25,8 +25,8 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.draw = 1; % 1=all, 2=best, 3=solution
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
-    handles.CoP = 100; % Count of population for genetic alg
-    handles.generations = 1000;
+    handles.CoP = 1000; % Count of population for genetic alg
+    handles.generations = 500;
     
     % freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -103,7 +103,7 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             draw(handles, 1);
         case 'radiobutton3'
             if (handles.alg == 1)
-                handles.CoC = 10;
+                handles.CoC = 100;
                 handles.cities = rand(handles.CoC, 2);
             end;
             handles.alg = 3;

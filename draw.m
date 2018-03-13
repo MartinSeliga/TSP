@@ -47,5 +47,12 @@ function draw(handles, mode)
         y(l+1) = y(1);
         plot(handles.axes1, x, y, 'o-', 'Color', ...
             [0.75 0.75 0.75], 'MarkerFaceColor',[0.5,0.5,0.5]);
+    elseif (mode == 6)
+        x = handles.bestSolution(:,1);
+        x(l+1) = x(1);
+        y = handles.bestSolution(:,2);
+        y(l+1) = y(1);
+        plot(handles.axes1, x, y, 'o-', 'Color', ...
+            [0.75 0.75 0.75], 'MarkerFaceColor',[0.5,0.5,0.5]);
     end 
 end
