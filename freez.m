@@ -1,5 +1,5 @@
-function handles = freez (handles, this)
-    if (this == 1)
+function handles = freez (handles, mode)
+    if (mode == 1)
         handles.rb1 = handles.radiobutton1.Enable;
         handles.rb2 = handles.radiobutton2.Enable;
         handles.rb3 = handles.radiobutton3.Enable;
@@ -21,7 +21,7 @@ function handles = freez (handles, this)
         handles.pushbutton5.Enable = 'off';
         handles.popupmenu1.Enable = 'off';
         handles.checkbox1.Enable = 'off';
-    else
+    elseif (mode == 0)
         handles.radiobutton1.Enable = handles.rb1;
         handles.radiobutton2.Enable = handles.rb2;
         handles.radiobutton3.Enable = handles.rb3;

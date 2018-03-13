@@ -25,18 +25,20 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.draw = 1; % 1=all, 2=best, 3=solution
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
+    handles.CoP = 100; % Count of population for genetic alg
+    handles.generations = 1000;
     
-    handles.rb1 = 'off';
-    handles.rb2 = 'off';
-    handles.rb3 = 'off';
-    handles.pb1 = 'off';
-    handles.pb2 = 'off';
-    handles.pb3 = 'off';
-    handles.pb4 = 'off';
-    handles.pb5 = 'off';
-    handles.pm1 = 'off';
-    handles.cb1 = 'off';
-    
+    % freez.m
+    handles.rb1 = handles.radiobutton1.Enable;
+    handles.rb2 = handles.radiobutton2.Enable;
+    handles.rb3 = handles.radiobutton3.Enable;
+    handles.pb1 = handles.pushbutton1.Enable;
+    handles.pb2 = handles.pushbutton2.Enable;
+    handles.pb3 = handles.pushbutton3.Enable;
+    handles.pb4 = handles.pushbutton4.Enable;
+    handles.pb5 = handles.pushbutton5.Enable;
+    handles.pm1 = handles.popupmenu1.Enable;
+    handles.cb1 = handles.checkbox1.Enable;
     poolobj = gcp('nocreate');
     if ~isempty(poolobj)
         handles.pushbutton5.String = 'Stop parallel pool';
@@ -60,7 +62,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
         high memory consumptions cause it generates double.
         (double = 8 bytes)
         
-        if CoC = 12 then perms take cca 7.14 GB of RAM
+        if CoC = 12 then perms take approx. 7.14 GB of RAM
         16 -> 305 TB :D
     
         handles.permutations = perms(1:handles.CoC);    
@@ -88,9 +90,11 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton2'
+            if (handles.alg == 1)
+                handles.CoC = 100;
+                handles.cities = rand(handles.CoC, 2);
+            end
             handles.alg = 2;
-            handles.CoC = 100;
-            handles.cities = rand(handles.CoC, 2);
             handles.pushbutton3.Enable = 'on';
             handles.checkbox1.Enable = 'on';
             handles.text1.String =  ...
@@ -98,7 +102,17 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton3'
+            if (handles.alg == 1)
+                handles.CoC = 10;
+                handles.cities = rand(handles.CoC, 2);
+            end;
             handles.alg = 3;
+            handles.pushbutton3.Enable = 'on';
+            handles.checkbox1.Enable = 'on';
+            handles.text1.String =  ...
+                strcat({'Count of cities: '}, num2str(handles.CoC));
+            cla(handles.axes1);    
+            draw(handles, 1);
     end
     
 guidata(hObject, handles);
@@ -109,7 +123,7 @@ function pushbutton2_Callback(hObject, ~, handles)
     if (handles.alg == 1)
         handles.CoC = handles.CoC+1;
         handles = addCity(handles, 1);
-    elseif (handles.alg == 2)
+    elseif (handles.alg == 2 || handles.alg == 3)
         handles.CoC = handles.CoC+10;
         handles = addCity(handles, 10);
     end
@@ -127,7 +141,7 @@ function pushbutton3_Callback(hObject, ~, handles)
     if (handles.alg == 1)
         handles.CoC = handles.CoC-1;
         handles = addCity(handles, -1);
-    elseif (handles.alg == 2)
+    elseif (handles.alg == 2 || handles.alg == 3)
         handles.CoC = handles.CoC-10;
         handles = addCity(handles, -10);
     end
@@ -135,7 +149,7 @@ function pushbutton3_Callback(hObject, ~, handles)
         strcat({'Count of cities: '}, num2str(handles.CoC));
     if (handles.CoC <= 4 && handles.alg == 1)
         handles.pushbutton3.Enable = 'off';
-    elseif ((handles.CoC <= 10 && handles.alg == 2))
+    elseif (handles.CoC <= 10 && (handles.alg == 2 || handles.alg == 3))
         handles.pushbutton3.Enable = 'off';
     end
     cla(handles.axes1);
@@ -178,7 +192,7 @@ guidata(hObject, handles);
 
 
 function pushbutton1_Callback(hObject, ~, handles)
-%
+% start
     handles.bestDist = distance(handles.cities); % Current best distance
     handles.bestSolution = handles.cities; % Current best solution
     handles.permCities = handles.cities; % Copy for permutations
@@ -195,30 +209,43 @@ function pushbutton1_Callback(hObject, ~, handles)
         pause(0.0);
         tic;
         handles = greedy(handles);
-    else
-        % not yet
+    elseif (handles.alg == 3)
+        handles.fitness = zeros(handles.CoP, 1);
+        handles.bestFitness = 0;
+        handles.text7.String = {'Running genetic...'};
+        handles = freez(handles, 1);
+        pause(0.0);
+        tic;
+        handles = genetic(handles);
     end
     q = datestr(toc/86400, 'MM:SS.FFF');
     handles = freez(handles, 0);
     handles.text7.String = strcat({'Complete! Runtime '}, q,...
-        {'. Shortest distance is '}, num2str(handles.bestDist));
+        {'. Shortest distance is '}, num2str(handles.bestDist),...
+        '.');
     
 guidata(hObject, handles);
 
 
-function checkbox1_Callback(hObject, eventdata, handles)
+function checkbox1_Callback(hObject, ~, handles)
+% run in parallel only without visualization
     if (handles.checkbox1.Value == 1)
-        handles.popupmenu1.Value = 3;
-        handles.draw = 3;
-    else
-        
+        poolobj = gcp('nocreate');
+        if isempty(poolobj)
+            handles.checkbox1.Value = 0;
+            msgbox('Start parallel pool first.','Warning', 'warn');
+        else
+            handles.popupmenu1.Value = 3;
+            handles.draw = 3;        
+        end
     end
 
 guidata(hObject, handles);
 
 
-function pushbutton5_Callback(hObject, eventdata, handles)
-    poolobj = gcp('nocreate'); % If no pool, do not create new one.
+function pushbutton5_Callback(hObject, ~, handles)
+% start/stop parallel pool
+    poolobj = gcp('nocreate');
     if isempty(poolobj)
         handles = freez(handles, 1);
         pause(0.0);
@@ -228,7 +255,6 @@ function pushbutton5_Callback(hObject, eventdata, handles)
     else
         delete(poolobj);
         handles.pushbutton5.String = 'Start parallel pool';
-    end
-    
+    end    
     
 guidata(hObject, handles);

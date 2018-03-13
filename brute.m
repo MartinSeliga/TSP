@@ -1,6 +1,6 @@
 function handles = brute(handles)
     z = factorial(handles.CoC);
-    if (handles.draw < 3)
+    if (handles.draw == 1 || handles.draw == 2)
         for i = 1:z
             d = distance(handles.permCities);
             tempDist = handles.bestDist;
@@ -15,7 +15,7 @@ function handles = brute(handles)
                     strcat({'Running brute force...'}, {'currently '}, ...
                      num2str(round(((i/z)*100),2)), {'% done.'});
                 pause(0.0);
-            elseif (d < tempDist)
+            elseif (handles.draw == 2 && d < tempDist)
                 cla(handles.axes1);
                 draw(handles, 3);
                 handles.text7.String = ...
