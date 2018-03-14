@@ -26,7 +26,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
     handles.CoP = 200; % Count of population for genetic alg
-    handles.generations = 100000;
+    handles.generations = 2000;
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -40,7 +40,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.pm1 = handles.popupmenu1.Enable;
     handles.cb1 = handles.checkbox1.Enable;
     poolobj = gcp('nocreate');
-    if ~isempty(poolobj)
+    if (~isempty(poolobj))
         handles.pushbutton5.String = 'Stop parallel pool';
     end
     
@@ -58,8 +58,8 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     
     %{
         Creating all possible permutation with matlab function
-        perm works realy fast, unfortunatelly it's causing 
-        high memory consumptions cause it generates double.
+        perm works realy fast, unfortunately it's causing 
+        high memory consumption cause it's generate double.
         (double = 8 bytes)
         
         if CoC = 12 then perms take approx. 7.14 GB of RAM
@@ -93,24 +93,24 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             if (handles.alg == 1)
                 handles.CoC = 100;
                 handles.cities = rand(handles.CoC, 2);
+                handles.text1.String =  ...
+                    strcat({'Count of cities: '}, num2str(handles.CoC));
+                handles.pushbutton3.Enable = 'on';
             end
             handles.alg = 2;
-            handles.pushbutton3.Enable = 'on';
             handles.checkbox1.Enable = 'on';
-            handles.text1.String =  ...
-                strcat({'Count of cities: '}, num2str(handles.CoC));
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton3'
             if (handles.alg == 1)
                 handles.CoC = 100;
                 handles.cities = rand(handles.CoC, 2);
-            end;
+                handles.text1.String =  ...
+                    strcat({'Count of cities: '}, num2str(handles.CoC));
+                handles.pushbutton3.Enable = 'on';
+            end
             handles.alg = 3;
-            handles.pushbutton3.Enable = 'on';
             handles.checkbox1.Enable = 'on';
-            handles.text1.String =  ...
-                strcat({'Count of cities: '}, num2str(handles.CoC));
             cla(handles.axes1);    
             draw(handles, 1);
     end
@@ -124,8 +124,8 @@ function pushbutton2_Callback(hObject, ~, handles)
         handles.CoC = handles.CoC+1;
         handles = addCity(handles, 1);
     elseif (handles.alg == 2 || handles.alg == 3)
-        handles.CoC = handles.CoC+100;
-        handles = addCity(handles, 100);
+        handles.CoC = handles.CoC+10;
+        handles = addCity(handles, 10);
     end
     handles.text1.String = ...
         strcat({'Count of cities: '}, num2str(handles.CoC));
@@ -169,6 +169,7 @@ function popupmenu1_Callback(hObject, ~, handles)
             handles.checkbox1.Value = 0;
         case 3
             handles.draw = 3;
+            handles.checkbox1.Value = 0;
     end
     
 guidata(hObject, handles);
