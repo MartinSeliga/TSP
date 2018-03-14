@@ -22,110 +22,137 @@ function handles = genetic(handles)
     end
 %}
 
-    handles.population = zeros(handles.CoP, handles.CoC);
     % first generation
+    % maybe will be fine to have current best solutions or at least
+    % top few percent from greedy as a members of population
+    handles.population = zeros(handles.CoP, handles.CoC);
     for i = 1:handles.CoP
         handles.population(i,:) = randperm(handles.CoC);
         handles.fitness(i,1) = 1/(distance(handles.cities...
             (handles.population(i,:),:))+1);
         if (handles.fitness(i,1) > handles.bestFitness)
             handles.bestFitness = handles.fitness(i,1);
-            handles.bestDist = distance(handles.cities...
-                (handles.population(i,:),:));
-            handles.bestSolution = handles.cities(handles.population(i,:),:);
+            handles.bestSolution = handles.cities(...
+                handles.population(i,:),:);
+            handles.bestDist = distance(handles.bestSolution);
         end
     end
     % draw the best
-    if (handles.draw == 1)
+    if (handles.draw == 1 || handles.draw == 2)
         cla(handles.axes1);
         draw(handles, 6);
         handles.text7.String = ...
             strcat({'Running genetic...currently 1. generation.'},...
-            {'Shortrest distance is '}, num2str(handles.bestDist), {'.'});
+            {'Shortrest distance is '}, num2str(handles.bestDist),...
+            {'. Best fitness is '}, num2str(handles.bestFitness), {'.'});
         pause(0.0);
     end
-    % next generations
+    
     n = handles.CoP;
+    
+    newFitness = handles.fitness;
+    newPopulation = handles.population;
+    
+    if (n <= 100)
+        part = ceil(n/10);
+    else
+        part = 10; 
+    end
+    
+    % next generations
     for i = 2:handles.generations
-        % selection
-        visited = zeros(n,1);
-        order = zeros(n,1);
-        if (n <= 10)
-            part = ceil(n/10);
-        elseif (n >= 1000)
-            part = floor(n/100);
+        
+        % initialize new population from the old one sorted by fitness
+        
+        [newFitness, order] = sort(newFitness, 'descend');
+        newPopulation = newPopulation(order(:,1),:);
+        
+        % Genetic
+        % (1:part -> Survivors for new population)
+        if (handles.checkbox1.Value == 1)
+            parfor j = part+1:n
+
+                % Tournament Selection
+                % select random 10% and take one with best fitness
+                parentA = handles.population(find(handles.fitness ==...
+                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
+                parentB = handles.population(find(handles.fitness ==...
+                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
+
+                % Crossover
+                same = find(parentA==parentB);
+                child = zeros(1, length(parentA));
+                child(same) = parentA(same);
+                diff = parentA(find(parentA~=parentB));
+                if (length(diff) > 1)
+                    diff = swap(diff,ceil(n/20));
+                end
+                child(child==0)=diff;
+                newPopulation(j,:) = child;
+
+                % Mutation
+                if(randperm(4,1)==1)
+                    newPopulation(j,:) = swap(newPopulation(j,:),1);
+                end
+
+                % Fitness
+                newFitness(j,1) = 1/(distance(handles.cities(...
+                    newPopulation(j,:),:))+1);            
+            end
         else
-            part = ceil(n*(ceil((1000-n)/100)/100));
-        end
-        order(:) = n;
-        for j = 1:part
-            order(j) = find(handles.fitness == max(handles.fitness(~visited)),1);
-            visited(order(j)) = 1;
-        end
-        for j = part:n-1
-            order(j+1) = order(mod(j,part)+1);
-        end
-        handles.population = handles.population(order(:,1),:);
-        % crossover
-        for j = part+1:floor((n/3)*2)
-            parentA = handles.population(j,:);
-            parentB = handles.population(j+1,:);
-            same = find(parentA==parentB);
-            new = zeros(1, length(parentA));
-            new(same) = parentA(same);
-            diff = parentA(find(parentA~=parentB));
-            if (length(diff) > 1)
-                diff = swap(diff,6);
-            end
-            new(new==0)=diff;
-            handles.population(j,:) = new;
-        end
-        % mutation
-        for j = ceil((n/3)*2):n
-            handles.population(j,:) = swap(handles.population(j,:),1);            
-        end
-        % fitness
-        for j = 1:n
-            handles.fitness(j,1) = 1/(distance(handles.cities...
-                (handles.population(j,:),:))+1);
-            if (handles.fitness(j,1) > handles.bestFitness)
-                handles.bestFitness = handles.fitness(j,1);
-                handles.bestDist = distance(handles.cities...
-                    (handles.population(j,:),:));
-                handles.bestSolution = handles.cities(handles.population(j,:),:);
+            for j = part+1:n
+
+                % Tournament Selection
+                % select random 10% and take one with best fitness
+                parentA = handles.population(find(handles.fitness ==...
+                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
+                parentB = handles.population(find(handles.fitness ==...
+                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
+
+                % Crossover
+                same = find(parentA==parentB);
+                child = zeros(1, length(parentA));
+                child(same) = parentA(same);
+                diff = parentA(find(parentA~=parentB));
+                if (length(diff) > 1)
+                    diff = swap(diff,ceil(n/20));
+                end
+                child(child==0)=diff;
+                newPopulation(j,:) = child;
+
+                % Mutation
+                if(randperm(4,1)==1)
+                    newPopulation(j,:) = swap(newPopulation(j,:),1);
+                end
+
+                % Fitness
+                newFitness(j,1) = 1/(distance(handles.cities(...
+                    newPopulation(j,:),:))+1);            
             end
         end
+        
+        handles.population = newPopulation;
+        handles.fitness = newFitness;
+        [handles.bestFitness, index] = max(newFitness);
+        handles.bestSolution = handles.cities(handles.population...
+            (index,:),:);
+        handles.bestDist = distance(handles.bestSolution);
+                
+        
         % draw the best in generation i
-        if (handles.draw == 1)
+        if (handles.draw == 1 || handles.draw == 2)
             cla(handles.axes1);
             draw(handles, 6);
             handles.text7.String = ...
                 strcat({'Running genetic...currently '},num2str(i),...
                 {'. generation. Shortrest distance is '}, num2str(...
-                handles.bestDist), {'.'});
+                handles.bestDist), {'. Best fitness is '}, num2str(...
+                handles.bestFitness), {'.'});
             pause(0.0);
         end
     end
-
+    cla(handles.axes1);
+    draw(handles, 3);
 end
 
 
-
-
-
-
-
-
-%{
-function fitness = calcFitness(cities, population, fitness, parallel)
-    if (parallel == 1)
-        parfor i = 1:length(population(:,1))
-            fitness(i,1) = distance(cities(population(i,:),:));
-        end
-    elseif (parallel == 0)
-        parfor i = 1:length(population(:,1))
-            
-        end
-    end
-end
-%}
