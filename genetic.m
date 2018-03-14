@@ -1,7 +1,9 @@
 function handles = genetic(handles)
 %{  
-    100 cities, 100000 population
-    parallel computing running approx. 4 times longer!
+    1000 cities, 1000 population
+    Parallel computing running approx. 8 times longer
+    cause split and merge takes longer time than
+    computation itself.
  
     if (handles.checkbox1.Value == 1)
         population = zeros(handles.CoP, handles.CoC);
@@ -19,6 +21,7 @@ function handles = genetic(handles)
         end
     end
 %}
+
     handles.population = zeros(handles.CoP, handles.CoC);
     % first generation
     for i = 1:handles.CoP
