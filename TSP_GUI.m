@@ -26,9 +26,9 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
     handles.CoP = 1000; % Count of population for genetic alg
-    handles.generations = 500;
+    handles.generations = 1000;
     
-    % freez.m
+    % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
     handles.rb2 = handles.radiobutton2.Enable;
     handles.rb3 = handles.radiobutton3.Enable;

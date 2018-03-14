@@ -47,20 +47,42 @@ function handles = genetic(handles)
         % selection
         visited = zeros(n,1);
         order = zeros(n,1);
-        for j = 1:n
+        if (n <= 10)
+            part = ceil(n/10);
+        elseif (n >= 1000)
+            part = floor(n/100);
+        else
+            part = ceil(n*(ceil((1000-n)/100)/100));
+        end
+        order(:) = n;
+        for j = 1:part
             order(j) = find(handles.fitness == max(handles.fitness(~visited)),1);
             visited(order(j)) = 1;
         end
+        for j = part:n-1
+            order(j+1) = order(mod(j,part)+1);
+        end
         handles.population = handles.population(order(:,1),:);
         % crossover
-        
+        for j = part+1:floor((n/3)*2)
+            parentA = handles.population(j,:);
+            parentB = handles.population(j+1,:);
+            same = find(parentA==parentB);
+            new = zeros(1, length(parentA));
+            new(same) = parentA(same);
+            diff = parentA(find(parentA~=parentB));
+            if (length(diff) > 1)
+                diff = swap(diff,2);
+            end
+            new(new==0)=diff;
+            handles.population(j,:) = new;
+        end
         % mutation
-        for j = n/2+1:n
-            handles.population(j,:) = swap(handles.population(j,:),...
-                handles.CoC/10);            
+        for j = ceil((n/3)*2):n
+            handles.population(j,:) = swap(handles.population(j,:),1);            
         end
         % fitness
-        for j = n/10:n
+        for j = 1:n
             handles.fitness(j,1) = 1/(distance(handles.cities...
                 (handles.population(j,:),:))+1);
             if (handles.fitness(j,1) > handles.bestFitness)
