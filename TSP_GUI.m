@@ -25,8 +25,8 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.draw = 1; % 1=all, 2=best, 3=solution
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
-    handles.CoP = 1000; % Count of population for genetic alg
-    handles.generations = 2000;
+    handles.CoP = 200; % Count of population for genetic alg
+    handles.generations = 100000;
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -223,6 +223,10 @@ function pushbutton1_Callback(hObject, ~, handles)
     handles.text7.String = strcat({'Complete! Runtime '}, q,...
         {'. Shortest distance is '}, num2str(handles.bestDist),...
         '.');
+    poolobj = gcp('nocreate');
+    if isempty(poolobj)
+        handles.pushbutton5.String = 'Start parallel pool';
+    end
     
 guidata(hObject, handles);
 
