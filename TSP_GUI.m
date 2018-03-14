@@ -26,7 +26,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
     handles.CoP = 1000; % Count of population for genetic alg
-    handles.generations = 1000;
+    handles.generations = 2000;
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -124,8 +124,8 @@ function pushbutton2_Callback(hObject, ~, handles)
         handles.CoC = handles.CoC+1;
         handles = addCity(handles, 1);
     elseif (handles.alg == 2 || handles.alg == 3)
-        handles.CoC = handles.CoC+10;
-        handles = addCity(handles, 10);
+        handles.CoC = handles.CoC+100;
+        handles = addCity(handles, 100);
     end
     handles.text1.String = ...
         strcat({'Count of cities: '}, num2str(handles.CoC));

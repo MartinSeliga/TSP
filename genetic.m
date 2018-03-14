@@ -72,7 +72,7 @@ function handles = genetic(handles)
             new(same) = parentA(same);
             diff = parentA(find(parentA~=parentB));
             if (length(diff) > 1)
-                diff = swap(diff,2);
+                diff = swap(diff,6);
             end
             new(new==0)=diff;
             handles.population(j,:) = new;
