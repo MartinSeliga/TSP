@@ -63,7 +63,6 @@ function handles = genetic(handles)
     for i = 2:handles.generations
         
         % initialize new population from the old one sorted by fitness
-        
         [newFitness, order] = sort(newFitness, 'descend');
         newPopulation = newPopulation(order(:,1),:);
         
@@ -149,6 +148,11 @@ function handles = genetic(handles)
                 handles.bestDist), {'. Best fitness is '}, num2str(...
                 handles.bestFitness), {'.'});
             pause(0.0);
+        end
+        
+        handles.gen = i;
+        if (handles.bestFitness > handles.fit)
+            break;
         end
     end
     cla(handles.axes1);

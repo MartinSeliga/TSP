@@ -26,7 +26,9 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.CoC = 6; % Count of "cities"
     handles.cities = rand(handles.CoC, 2); % Initialize cities
     handles.CoP = 200; % Count of population for genetic alg
-    handles.generations = 2000;
+    handles.generations = 1000;
+    handles.gen = handles.generations;
+    handles.fit = 1;
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -85,6 +87,12 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.pushbutton3.Enable = 'on';
             handles.checkbox1.Enable = 'off';
             handles.checkbox1.Value = 0;
+            handles.text8.Enable = 'off';
+            handles.edit1.Enable = 'off';
+            handles.text9.Enable = 'off';
+            handles.edit2.Enable = 'off';
+            handles.text10.Enable = 'off';
+            handles.edit3.Enable = 'off';
             handles.text1.String =  ...
                 strcat({'Count of cities: '}, num2str(handles.CoC));
             cla(handles.axes1);    
@@ -99,6 +107,12 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             end
             handles.alg = 2;
             handles.checkbox1.Enable = 'on';
+            handles.text8.Enable = 'off';
+            handles.edit1.Enable = 'off';
+            handles.text9.Enable = 'off';
+            handles.edit2.Enable = 'off';
+            handles.text10.Enable = 'off';
+            handles.edit3.Enable = 'off';
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton3'
@@ -111,6 +125,12 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             end
             handles.alg = 3;
             handles.checkbox1.Enable = 'on';
+            handles.text8.Enable = 'on';
+            handles.edit1.Enable = 'on';
+            handles.text9.Enable = 'on';
+            handles.edit2.Enable = 'on';
+            handles.text10.Enable = 'on';
+            handles.edit3.Enable = 'on';
             cla(handles.axes1);    
             draw(handles, 1);
     end
@@ -175,12 +195,6 @@ function popupmenu1_Callback(hObject, ~, handles)
 guidata(hObject, handles);
 
 
-function popupmenu1_CreateFcn(hObject, ~, ~)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 function pushbutton4_Callback(hObject, ~, handles)
 % new random position
     handles.cities = rand(handles.CoC, 2);
@@ -221,9 +235,19 @@ function pushbutton1_Callback(hObject, ~, handles)
     end
     q = datestr(toc/86400, 'MM:SS.FFF');
     handles = freez(handles, 0);
-    handles.text7.String = strcat({'Complete! Runtime '}, q,...
-        {'. Shortest distance is '}, num2str(handles.bestDist),...
-        '.');
+    status = strcat({'Complete! Runtime '}, q);
+    if (handles.alg == 1)
+        status = strcat(status, {'. The shortest distance is '}...
+            , num2str(handles.bestDist), '.');
+    elseif (handles.alg == 2)
+        status = strcat(status, {'. The shortest distance found is '},...
+            num2str(handles.bestDist), '.');
+    elseif (handles.alg == 3)
+        status = strcat(status, {'. The shortest distance found in '},...
+            num2str(handles.gen), {'th generation and it is '},...
+            num2str(handles.bestDist), {'.'});
+    end
+    handles.text7.String = status;
     poolobj = gcp('nocreate');
     if isempty(poolobj)
         handles.pushbutton5.String = 'Start parallel pool';
@@ -253,13 +277,81 @@ function pushbutton5_Callback(hObject, ~, handles)
     poolobj = gcp('nocreate');
     if isempty(poolobj)
         handles = freez(handles, 1);
+        handles.text7.String = {'Starting parallel pool...'};
         pause(0.0);
         parpool;
         handles = freez(handles, 0);
         handles.pushbutton5.String = 'Stop parallel pool';
+        handles.text7.String = {'Parallel pool has been started...'};
     else
         delete(poolobj);
         handles.pushbutton5.String = 'Start parallel pool';
     end    
     
 guidata(hObject, handles);
+
+
+function edit1_Callback(hObject, ~, handles)
+    q = ceil(str2double(get(hObject,'String')));
+    if (isnan(q))
+        set(hObject,'String',handles.CoP);
+        warndlg('Really?');
+    elseif (q < 2)
+        set(hObject,'String',handles.CoP);
+        warndlg('Input must be from interval <2,inf>.');
+    else
+        handles.CoP = q;
+    end
+    
+guidata(hObject, handles);
+
+
+function edit2_Callback(hObject, ~, handles)
+    q = ceil(str2double(get(hObject,'String')));
+    if (isnan(q))
+        set(hObject,'String',handles.generations);
+        warndlg('Really?');
+    elseif (q < 2)
+        set(hObject,'String',handles.generations);
+        warndlg('Input must be from interval <2,inf>.');
+    else
+        handles.generations = q;
+    end
+    
+guidata(hObject, handles);
+
+
+function edit3_Callback(hObject, ~, handles)
+    q = str2double(get(hObject,'String'));
+    if (isnan(q))
+        set(hObject,'String',handles.fit);
+        warndlg('Really?');
+    elseif (q > 1 || q < 0)
+        set(hObject,'String',handles.fit);
+        warndlg('Input must be from interval <0,1>.');
+    else
+        handles.fit = q;
+    end
+    
+guidata(hObject, handles);
+
+
+function popupmenu1_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit1_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit2_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit3_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
