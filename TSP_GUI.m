@@ -64,8 +64,8 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
         high memory consumption cause it's generate double.
         (double = 8 bytes)
         
-        if CoC = 12 then perms take approx. 7.14 GB of RAM
-        16 -> 305 TB :D
+        if CoC = 11 then perms take approx. 3.27 GB of RAM
+        15 -> 143 TB :D
     
         handles.permutations = perms(1:handles.CoC);    
     %}
@@ -245,7 +245,8 @@ function pushbutton1_Callback(hObject, ~, handles)
     elseif (handles.alg == 3)
         status = strcat(status, {'. The shortest distance found in '},...
             num2str(handles.gen), {'th generation and it is '},...
-            num2str(handles.bestDist), {'.'});
+            num2str(handles.bestDist), {', with fitness '},...
+            num2str(handles.bestFitness), {'.'});
     end
     handles.text7.String = status;
     poolobj = gcp('nocreate');

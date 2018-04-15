@@ -90,7 +90,7 @@ function handles = genetic(handles)
                 newPopulation(j,:) = child;
 
                 % Mutation
-                if(randperm(4,1)==1)
+                if(randperm(10,1)==1)
                     newPopulation(j,:) = swap(newPopulation(j,:),1);
                 end
 
