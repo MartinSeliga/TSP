@@ -10,14 +10,14 @@ function handles = genetic(handles)
         parfor i = 1:handles.CoP
             population(i,:) = randperm(handles.CoC);
             fitness(i,1) = 1/(distance(handles.cities...
-                (population(i,:),:))+1);
+                (population(i,:),:), handles.metric)+1);
         end
     elseif (handles.checkbox1.Value == 0)
         handles.population = zeros(handles.CoP, handles.CoC);
         for i = 1:handles.CoP
             handles.population(i,:) = randperm(handles.CoC);
             handles.fitness(i,1) = 1/(distance(handles.cities...
-                (handles.population(i,:),:))+1);
+                (handles.population(i,:),:), handles.metric)+1);
         end
     end
 %}
@@ -29,12 +29,12 @@ function handles = genetic(handles)
     for i = 1:handles.CoP
         handles.population(i,:) = randperm(handles.CoC);
         handles.fitness(i,1) = 1/(distance(handles.cities...
-            (handles.population(i,:),:))+1);
+            (handles.population(i,:),:), handles.metric)+1);
         if (handles.fitness(i,1) > handles.bestFitness)
             handles.bestFitness = handles.fitness(i,1);
             handles.bestSolution = handles.cities(...
                 handles.population(i,:),:);
-            handles.bestDist = distance(handles.bestSolution);
+            handles.bestDist = distance(handles.bestSolution, handles.metric);
         end
     end
     % draw the best
@@ -96,7 +96,7 @@ function handles = genetic(handles)
 
                 % Fitness
                 newFitness(j,1) = 1/(distance(handles.cities(...
-                    newPopulation(j,:),:))+1);            
+                    newPopulation(j,:),:), handles.metric)+1);            
             end
         else
             for j = part+1:n
@@ -126,7 +126,7 @@ function handles = genetic(handles)
 
                 % Fitness
                 newFitness(j,1) = 1/(distance(handles.cities(...
-                    newPopulation(j,:),:))+1);            
+                    newPopulation(j,:),:), handles.metric)+1);            
             end
         end
         
@@ -135,7 +135,7 @@ function handles = genetic(handles)
         [handles.bestFitness, index] = max(newFitness);
         handles.bestSolution = handles.cities(handles.population...
             (index,:),:);
-        handles.bestDist = distance(handles.bestSolution);
+        handles.bestDist = distance(handles.bestSolution, handles.metric);
                 
         
         % draw the best in generation i

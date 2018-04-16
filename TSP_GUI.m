@@ -29,6 +29,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.generations = 1000;
     handles.gen = handles.generations;
     handles.fit = 1;
+    handles.metric = 'e';
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -41,6 +42,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.pb5 = handles.pushbutton5.Enable;
     handles.pm1 = handles.popupmenu1.Enable;
     handles.cb1 = handles.checkbox1.Enable;
+    handles.pm3 = handles.popupmenu3.Enable;
     poolobj = gcp('nocreate');
     if (~isempty(poolobj))
         handles.pushbutton5.String = 'Stop parallel pool';
@@ -85,8 +87,6 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.CoC = 6;
             handles.cities = rand(handles.CoC, 2);
             handles.pushbutton3.Enable = 'on';
-            handles.checkbox1.Enable = 'off';
-            handles.checkbox1.Value = 0;
             handles.text8.Enable = 'off';
             handles.edit1.Enable = 'off';
             handles.text9.Enable = 'off';
@@ -94,7 +94,7 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.text10.Enable = 'off';
             handles.edit3.Enable = 'off';
             handles.text1.String =  ...
-                strcat({'Count of cities: '}, num2str(handles.CoC));
+                strcat({'Cities:    '}, num2str(handles.CoC));
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton2'
@@ -102,11 +102,10 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
                 handles.CoC = 100;
                 handles.cities = rand(handles.CoC, 2);
                 handles.text1.String =  ...
-                    strcat({'Count of cities: '}, num2str(handles.CoC));
+                    strcat({'Cities:    '}, num2str(handles.CoC));
                 handles.pushbutton3.Enable = 'on';
             end
             handles.alg = 2;
-            handles.checkbox1.Enable = 'on';
             handles.text8.Enable = 'off';
             handles.edit1.Enable = 'off';
             handles.text9.Enable = 'off';
@@ -120,11 +119,10 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
                 handles.CoC = 100;
                 handles.cities = rand(handles.CoC, 2);
                 handles.text1.String =  ...
-                    strcat({'Count of cities: '}, num2str(handles.CoC));
+                    strcat({'Cities:    '}, num2str(handles.CoC));
                 handles.pushbutton3.Enable = 'on';
             end
             handles.alg = 3;
-            handles.checkbox1.Enable = 'on';
             handles.text8.Enable = 'on';
             handles.edit1.Enable = 'on';
             handles.text9.Enable = 'on';
@@ -148,7 +146,7 @@ function pushbutton2_Callback(hObject, ~, handles)
         handles = addCity(handles, 10);
     end
     handles.text1.String = ...
-        strcat({'Count of cities: '}, num2str(handles.CoC));
+        strcat({'Cities:    '}, num2str(handles.CoC));
     handles.pushbutton3.Enable = 'on';
     cla(handles.axes1);
     draw(handles, 1);    
@@ -166,7 +164,7 @@ function pushbutton3_Callback(hObject, ~, handles)
         handles = addCity(handles, -10);
     end
     handles.text1.String = ...
-        strcat({'Count of cities: '}, num2str(handles.CoC));
+        strcat({'Cities:    '}, num2str(handles.CoC));
     if (handles.CoC <= 4 && handles.alg == 1)
         handles.pushbutton3.Enable = 'off';
     elseif (handles.CoC <= 10 && (handles.alg == 2 || handles.alg == 3))
@@ -208,7 +206,7 @@ guidata(hObject, handles);
 
 function pushbutton1_Callback(hObject, ~, handles)
 % start
-    handles.bestDist = distance(handles.cities); % Current best distance
+    handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
     handles.bestSolution = handles.cities; % Current best solution
     handles.permCities = handles.cities; % Copy for permutations
     if (handles.alg == 1)
@@ -337,22 +335,40 @@ function edit3_Callback(hObject, ~, handles)
 guidata(hObject, handles);
 
 
+function popupmenu3_Callback(hObject, eventdata, handles)
+% compute distance
+    switch get(hObject, 'Value')
+        case 1
+            handles.metric = 'e';
+        case 2
+            handles.metric = 'm';
+    end
+    
+guidata(hObject, handles);
+
+
+
 function popupmenu1_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit1_CreateFcn(hObject, eventdata, handles)
+function edit1_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit2_CreateFcn(hObject, eventdata, handles)
+function edit2_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function edit3_CreateFcn(hObject, eventdata, handles)
+function edit3_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function popupmenu3_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
