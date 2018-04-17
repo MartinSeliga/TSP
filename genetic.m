@@ -4,22 +4,6 @@ function handles = genetic(handles)
     Parallel computing running approx. 8 times longer
     cause split and merge takes longer time than
     computation itself.
- 
-    if (handles.checkbox1.Value == 1)
-        population = zeros(handles.CoP, handles.CoC);
-        parfor i = 1:handles.CoP
-            population(i,:) = randperm(handles.CoC);
-            fitness(i,1) = 1/(distance(handles.cities...
-                (population(i,:),:), handles.metric)+1);
-        end
-    elseif (handles.checkbox1.Value == 0)
-        handles.population = zeros(handles.CoP, handles.CoC);
-        for i = 1:handles.CoP
-            handles.population(i,:) = randperm(handles.CoC);
-            handles.fitness(i,1) = 1/(distance(handles.cities...
-                (handles.population(i,:),:), handles.metric)+1);
-        end
-    end
 %}
 
     % first generation
@@ -62,51 +46,35 @@ function handles = genetic(handles)
     % next generations
     for i = 2:handles.generations
         
-        % initialize new population from the old one sorted by fitness
+        % initialize new population from the previous one sorted by fitness
         [newFitness, order] = sort(newFitness, 'descend');
         newPopulation = newPopulation(order(:,1),:);
+        
+        if (handles.selection == 4)
+            wheelFitness = newFitness/sum(newFitness);
+            wheelFitness = sort(wheelFitness);
+            for j = 2:n
+                wheelFitness(j) = wheelFitness(j) + wheelFitness(j-1);
+            end
+        else
+            wheelFitness = NaN;
+        end
         
         % Genetic
         % (1:part -> Survivors for new population)
         if (handles.checkbox1.Value == 1)
             parfor j = part+1:n
-
-                % Tournament Selection
-                % select random 10% and take one with best fitness
-                parentA = handles.population(find(handles.fitness ==...
-                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
-                parentB = handles.population(find(handles.fitness ==...
-                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
-
-                % Crossover
-                same = find(parentA==parentB);
-                child = zeros(1, length(parentA));
-                child(same) = parentA(same);
-                diff = parentA(find(parentA~=parentB));
-                if (length(diff) > 1)
-                    diff = swap(diff,ceil(n/20));
-                end
-                child(child==0)=diff;
-                newPopulation(j,:) = child;
-
-                % Mutation
-                if(randperm(10,1)==1)
-                    newPopulation(j,:) = swap(newPopulation(j,:),1);
-                end
-
-                % Fitness
-                newFitness(j,1) = 1/(distance(handles.cities(...
-                    newPopulation(j,:),:), handles.metric)+1);            
+ 
             end
         else
-            for j = part+1:n
-
-                % Tournament Selection
-                % select random 10% and take one with best fitness
-                parentA = handles.population(find(handles.fitness ==...
-                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
-                parentB = handles.population(find(handles.fitness ==...
-                    max(handles.fitness(randperm(n, ceil(n/10)))),1),:);
+            for j = ceil(part/2)+1:ceil(n/2)
+                l = j*2; % --> childB
+                k = l-1; % --> childA
+                
+                [parentA, parentB] = selection(newPopulation,...
+                                                handles.fitness,...
+                                                handles.selection,...
+                                                wheelFitness, n);
 
                 % Crossover
                 same = find(parentA==parentB);
@@ -118,15 +86,19 @@ function handles = genetic(handles)
                 end
                 child(child==0)=diff;
                 newPopulation(j,:) = child;
+                newPopulation(k,:) = child;
 
                 % Mutation
                 if(randperm(4,1)==1)
                     newPopulation(j,:) = swap(newPopulation(j,:),1);
+                    newPopulation(k,:) = swap(newPopulation(j,:),1);
                 end
 
                 % Fitness
                 newFitness(j,1) = 1/(distance(handles.cities(...
-                    newPopulation(j,:),:), handles.metric)+1);            
+                    newPopulation(j,:),:), handles.metric)+1);
+                newFitness(k,1) = 1/(distance(handles.cities(...
+                    newPopulation(k,:),:), handles.metric)+1); 
             end
         end
         
