@@ -11,7 +11,8 @@ function handles = freez (handles, mode)
         handles.pm1 = handles.popupmenu1.Enable;
         handles.cb1 = handles.checkbox1.Enable;
         handles.pm3 = handles.popupmenu3.Enable;
-        handles.pm4 = handles.popupmenu3.Enable;
+        handles.pm4 = handles.popupmenu4.Enable;
+        handles.pm5 = handles.popupmenu5.Enable;
         
         handles.radiobutton1.Enable = 'off';
         handles.radiobutton2.Enable = 'off';
@@ -25,6 +26,7 @@ function handles = freez (handles, mode)
         handles.checkbox1.Enable = 'off';
         handles.popupmenu3.Enable = 'off';
         handles.popupmenu4.Enable = 'off';
+        handles.popupmenu5.Enable = 'off';
     elseif (mode == 0)
         handles.radiobutton1.Enable = handles.rb1;
         handles.radiobutton2.Enable = handles.rb2;
@@ -38,5 +40,6 @@ function handles = freez (handles, mode)
         handles.checkbox1.Enable = handles.cb1;
         handles.popupmenu3.Enable = handles.pm3;
         handles.popupmenu4.Enable = handles.pm4;
+        handles.popupmenu5.Enable = handles.pm5;
     end
 end

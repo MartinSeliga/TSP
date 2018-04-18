@@ -71,22 +71,18 @@ function handles = genetic(handles)
                 l = j*2; % --> childB
                 k = l-1; % --> childA
                 
+                % Selection
                 [parentA, parentB] = selection(newPopulation,...
                                                 handles.fitness,...
                                                 handles.selection,...
                                                 wheelFitness, n);
 
                 % Crossover
-                same = find(parentA==parentB);
-                child = zeros(1, length(parentA));
-                child(same) = parentA(same);
-                diff = parentA(find(parentA~=parentB));
-                if (length(diff) > 1)
-                    diff = swap(diff,ceil(n/20));
-                end
-                child(child==0)=diff;
-                newPopulation(j,:) = child;
-                newPopulation(k,:) = child;
+                [childA, childB] = crossover(parentA, parentB,...
+                                                handles.crossover);
+
+                newPopulation(j,:) = childA;
+                newPopulation(k,:) = childB;
 
                 % Mutation
                 if(randperm(4,1)==1)

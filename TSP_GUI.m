@@ -32,6 +32,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.metric = 'e';
     handles.selection = 3;
     handles.popupmenu4.Value = 3;
+    handles.crossover = 1;
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -46,6 +47,7 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.cb1 = handles.checkbox1.Enable;
     handles.pm3 = handles.popupmenu3.Enable;
     handles.pm4 = handles.popupmenu4.Enable;
+    handles.pm5 = handles.popupmenu5.Enable;
     poolobj = gcp('nocreate');
     if (~isempty(poolobj))
         handles.pushbutton5.String = 'Stop parallel pool';
@@ -100,6 +102,8 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
                 strcat({'Cities:    '}, num2str(handles.CoC));
             handles.text12.Enable = 'off';
             handles.popupmenu4.Enable = 'off';
+            handles.text13.Enable = 'off';
+            handles.popupmenu5.Enable = 'off';
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton2'
@@ -119,6 +123,8 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.edit3.Enable = 'off';
             handles.text12.Enable = 'off';
             handles.popupmenu4.Enable = 'off';
+            handles.text13.Enable = 'off';
+            handles.popupmenu5.Enable = 'off';
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton3'
@@ -138,6 +144,8 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.edit3.Enable = 'on';
             handles.text12.Enable = 'on';
             handles.popupmenu4.Enable = 'on';
+            handles.text13.Enable = 'on';
+            handles.popupmenu5.Enable = 'on';
             cla(handles.axes1);    
             draw(handles, 1);
     end
@@ -344,7 +352,7 @@ function edit3_Callback(hObject, ~, handles)
 guidata(hObject, handles);
 
 
-function popupmenu3_Callback(hObject, eventdata, handles)
+function popupmenu3_Callback(hObject, ~, handles)
 % compute distance
     switch get(hObject, 'Value')
         case 1
@@ -356,7 +364,7 @@ function popupmenu3_Callback(hObject, eventdata, handles)
 guidata(hObject, handles);
 
 
-function popupmenu4_Callback(hObject, eventdata, handles)
+function popupmenu4_Callback(hObject, ~, handles)
 % selection
     switch get(hObject, 'Value')
         case 1
@@ -372,6 +380,18 @@ function popupmenu4_Callback(hObject, eventdata, handles)
 guidata(hObject, handles);
 
 
+function popupmenu5_Callback(hObject, ~, handles)
+% crossover
+    switch get(hObject, 'Value')
+        case 1
+            handles.crossover = 1;
+        case 2
+            handles.crossover = 2;
+        case 3
+            handles.crossover = 3;
+    end
+
+guidata(hObject, handles);
 
 function popupmenu1_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -399,6 +419,11 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function popupmenu4_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function popupmenu5_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
