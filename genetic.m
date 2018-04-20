@@ -43,6 +43,15 @@ function handles = genetic(handles)
         part = 10; 
     end
     
+    hselection = handles.selection;
+    hcrossover = handles.crossover;
+    hmutation = handles.mutation;
+    hcities = handles.cities;
+    hmetric = handles.metric;
+    hprobcross = handles.probcross;
+    hprobmutate = handles.probmutate;
+    htop = handles.top;
+    
     % next generations
     for i = 2:handles.generations
         
@@ -63,9 +72,43 @@ function handles = genetic(handles)
         % Genetic
         % (1:part -> Survivors for new population)
         if (handles.checkbox1.Value == 1)
-            parfor j = part+1:n
- 
+            fitness = handles.fitness;
+            parfor j = 1:ceil((n-part)/2)
+                
+                % Selection
+                [parentA, parentB] = selection(newPopulation, fitness,...
+                                                hselection, wheelFitness,...
+                                                n, htop);
+
+                % Crossover
+                if (rand() <= hprobcross)
+                    [childA, childB] = crossover(parentA, parentB,hcrossover);
+                else
+                    childA = parentA;
+                    childB = parentB;
+                end
+
+                % Mutation
+                if (rand() <= hprobmutate)
+                    childA = mutation(childA,hmutation);
+                end
+                newPopA(j,:) = childA;
+                if (rand() <= hprobmutate)
+                    childB = mutation(childB,hmutation);
+                end
+                newPopB(j,:) = childB;
+                
+                % Fitness
+                newFitA(j,1) = 1/(distance(hcities(...
+                    newPopA(j,:),:), hmetric)+1);
+                newFitB(j,1) = 1/(distance(hcities(...
+                    newPopB(j,:),:), hmetric)+1);
             end
+            newPopulation(part+1:part+length(newPopA(:,1)),:) = newPopA(1:length(newPopA(:,1)), :);
+            newPopulation(part+length(newPopA(:,1))+1:n,:) = newPopB(1:length(newPopB(:,1)), :);
+            newFitness(part+1:part+length(newFitA),:) = newFitA(:);
+            newFitness(part+length(newFitB)+1:n,:) = newFitB(:);
+            
         else
             for j = ceil(part/2)+1:ceil(n/2)
                 l = j*2; % --> childB
@@ -75,24 +118,33 @@ function handles = genetic(handles)
                 [parentA, parentB] = selection(newPopulation,...
                                                 handles.fitness,...
                                                 handles.selection,...
-                                                wheelFitness, n);
+                                                wheelFitness, n,...
+                                                handles.top);
 
                 % Crossover
-                [childA, childB] = crossover(parentA, parentB,...
+                if (rand() <= handles.probcross)
+                    [childA, childB] = crossover(parentA, parentB,...
                                                 handles.crossover);
-
-                newPopulation(j,:) = childA;
-                newPopulation(k,:) = childB;
-
-                % Mutation
-                if(randperm(4,1)==1)
-                    newPopulation(j,:) = swap(newPopulation(j,:),1);
-                    newPopulation(k,:) = swap(newPopulation(j,:),1);
+                else
+                    childA = parentA;
+                    childB = parentB;
                 end
 
+                % Mutation
+                if (rand() <= handles.probmutate)
+                    newPopulation(l,:) = mutation(childA,handles.mutation);
+                else
+                    newPopulation(l,:) = childA;
+                end
+                if (rand() <= handles.probmutate)
+                    newPopulation(k,:) = mutation(childB,handles.mutation);
+                else
+                    newPopulation(k,:) = childB;
+                end
+                
                 % Fitness
-                newFitness(j,1) = 1/(distance(handles.cities(...
-                    newPopulation(j,:),:), handles.metric)+1);
+                newFitness(l,1) = 1/(distance(handles.cities(...
+                    newPopulation(l,:),:), handles.metric)+1);
                 newFitness(k,1) = 1/(distance(handles.cities(...
                     newPopulation(k,:),:), handles.metric)+1); 
             end

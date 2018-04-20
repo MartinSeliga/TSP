@@ -33,6 +33,12 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.selection = 3;
     handles.popupmenu4.Value = 3;
     handles.crossover = 1;
+    handles.mutation = 1;
+    handles.workers = 2;
+    handles.top = .50;
+    handles.probcross = .95;
+    handles.probmutate = .10;
+    set(handles.uibuttongroup1,'selectedobject',handles.radiobutton1)
     
     % init for freez.m
     handles.rb1 = handles.radiobutton1.Enable;
@@ -48,9 +54,16 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.pm3 = handles.popupmenu3.Enable;
     handles.pm4 = handles.popupmenu4.Enable;
     handles.pm5 = handles.popupmenu5.Enable;
+    handles.pm6 = handles.popupmenu5.Enable;
+    handles.ed1 = handles.edit1.Enable;
+    handles.ed2 = handles.edit2.Enable;
+    handles.ed3 = handles.edit3.Enable;
+    handles.ed5 = handles.edit5.Enable;
+    handles.ed6 = handles.edit6.Enable;
+    handles.ed7 = handles.edit7.Enable;
     poolobj = gcp('nocreate');
     if (~isempty(poolobj))
-        handles.pushbutton5.String = 'Stop parallel pool';
+        handles.pushbutton5.String = 'Stop workers';
     end
     
     % refresh symbol for button
@@ -104,6 +117,14 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.popupmenu4.Enable = 'off';
             handles.text13.Enable = 'off';
             handles.popupmenu5.Enable = 'off';
+            handles.text14.Enable = 'off';
+            handles.popupmenu6.Enable = 'off';
+            handles.text17.Enable = 'off';
+            handles.edit5.Enable = 'off';
+            handles.text18.Enable = 'off';
+            handles.edit6.Enable = 'off';
+            handles.text19.Enable = 'off';
+            handles.edit7.Enable = 'off';
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton2'
@@ -125,6 +146,14 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.popupmenu4.Enable = 'off';
             handles.text13.Enable = 'off';
             handles.popupmenu5.Enable = 'off';
+            handles.text14.Enable = 'off';
+            handles.popupmenu6.Enable = 'off';
+            handles.text17.Enable = 'off';
+            handles.edit5.Enable = 'off';
+            handles.text18.Enable = 'off';
+            handles.edit6.Enable = 'off';
+            handles.text19.Enable = 'off';
+            handles.edit7.Enable = 'off';
             cla(handles.axes1);    
             draw(handles, 1);
         case 'radiobutton3'
@@ -146,6 +175,14 @@ function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
             handles.popupmenu4.Enable = 'on';
             handles.text13.Enable = 'on';
             handles.popupmenu5.Enable = 'on';
+            handles.text14.Enable = 'on';
+            handles.popupmenu6.Enable = 'on';
+            handles.text17.Enable = 'on';
+            handles.edit5.Enable = 'on';
+            handles.text18.Enable = 'on';
+            handles.edit6.Enable = 'on';
+            handles.text19.Enable = 'on';
+            handles.edit7.Enable = 'on';
             cla(handles.axes1);    
             draw(handles, 1);
     end
@@ -266,7 +303,7 @@ function pushbutton1_Callback(hObject, ~, handles)
     handles.text7.String = status;
     poolobj = gcp('nocreate');
     if isempty(poolobj)
-        handles.pushbutton5.String = 'Start parallel pool';
+        handles.pushbutton5.String = 'Start workers';
     end
     
 guidata(hObject, handles);
@@ -278,7 +315,7 @@ function checkbox1_Callback(hObject, ~, handles)
         poolobj = gcp('nocreate');
         if isempty(poolobj)
             handles.checkbox1.Value = 0;
-            msgbox('Start parallel pool first.','Warning', 'warn');
+            msgbox('Start workers first.','Warning', 'warn');
         else
             handles.popupmenu1.Value = 3;
             handles.draw = 3;        
@@ -293,17 +330,39 @@ function pushbutton5_Callback(hObject, ~, handles)
     poolobj = gcp('nocreate');
     if isempty(poolobj)
         handles = freez(handles, 1);
-        handles.text7.String = {'Starting parallel pool...'};
+        handles.text7.String = {'Starting workers...'};
         pause(0.0);
-        parpool;
+        parpool(handles.workers);
         handles = freez(handles, 0);
-        handles.pushbutton5.String = 'Stop parallel pool';
-        handles.text7.String = {'Parallel pool has been started...'};
+        handles.pushbutton5.String = 'Stop workers';
+        handles.text7.String = {'Workers have been started...'};
     else
         delete(poolobj);
-        handles.pushbutton5.String = 'Start parallel pool';
+        handles.pushbutton5.String = 'Start workers';
     end    
     
+guidata(hObject, handles);
+
+
+function pushbutton6_Callback(hObject, ~, handles)
+    handles.workers = handles.workers + 1;
+    handles.text15.String =  ...
+                    strcat({'Workers: '}, num2str(handles.workers));
+    handles.pushbutton7.Enable = 'on';
+    
+guidata(hObject, handles);
+
+
+function pushbutton7_Callback(hObject, ~, handles)
+    if (handles.workers > 1)
+        handles.workers = handles.workers - 1;
+        handles.text15.String =  ...
+                    strcat({'Workers: '}, num2str(handles.workers));
+        if (handles.workers == 1)
+            handles.pushbutton7.Enable = 'off';
+        end
+    end
+
 guidata(hObject, handles);
 
 
@@ -352,6 +411,51 @@ function edit3_Callback(hObject, ~, handles)
 guidata(hObject, handles);
 
 
+function edit5_Callback(hObject, ~, handles)
+    q = str2double(get(hObject,'String'));
+    if (isnan(q))
+        set(hObject,'String',handles.top*100);
+        warndlg('Really?');
+    elseif (q > 100 || q <= 0)
+        set(hObject,'String',handles.top*100);
+        warndlg('Input must be from interval (0,100>.');
+    else
+        handles.top = q/100;
+    end
+
+guidata(hObject, handles);
+
+
+function edit6_Callback(hObject, ~, handles)
+    q = str2double(get(hObject,'String'));
+    if (isnan(q))
+        set(hObject,'String',handles.probcross*100);
+        warndlg('Really?');
+    elseif (q > 100 || q <= 0)
+        set(hObject,'String',handles.probcross*100);
+        warndlg('Input must be from interval (0,100>.');
+    else
+        handles.probcross = q/100;
+    end
+
+guidata(hObject, handles);
+
+
+function edit7_Callback(hObject, ~, handles)
+    q = str2double(get(hObject,'String'));
+    if (isnan(q))
+        set(hObject,'String',handles.probmutate*100);
+        warndlg('Really?');
+    elseif (q > 100 || q <= 0)
+        set(hObject,'String',handles.probmutate*100);
+        warndlg('Input must be from interval (0,100>.');
+    else
+        handles.probmutate = q/100;
+    end
+
+guidata(hObject, handles);
+
+
 function popupmenu3_Callback(hObject, ~, handles)
 % compute distance
     switch get(hObject, 'Value')
@@ -393,6 +497,26 @@ function popupmenu5_Callback(hObject, ~, handles)
 
 guidata(hObject, handles);
 
+
+function popupmenu6_Callback(hObject, ~, handles)
+% mutation
+    switch get(hObject, 'Value')
+        case 1
+            handles.mutation = 1;
+        case 2
+            handles.mutation = 2;
+        case 3
+            handles.mutation = 3;
+        case 4
+            handles.mutation = 4;
+        case 5
+            handles.mutation = 5;
+        case 6
+            handles.mutation = 6;
+    end
+
+guidata(hObject, handles);
+
 function popupmenu1_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
@@ -424,6 +548,26 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function popupmenu5_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function popupmenu6_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit5_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit6_CreateFcn(hObject, ~, ~)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit7_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

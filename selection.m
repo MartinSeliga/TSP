@@ -1,4 +1,4 @@
-function [parentA, parentB] = selection(population, fitness, selection, wheelFitness, n)
+function [parentA, parentB] = selection(population, fitness, selection, wheelFitness, n, prob)
     pop = population;
     wf = wheelFitness;
     if (selection == 1)
@@ -11,11 +11,11 @@ function [parentA, parentB] = selection(population, fitness, selection, wheelFit
         
     elseif (selection == 2)
         % Cutting Selection
-        % select random from top 10%
-        index = randperm(ceil(n/10), 1);
+        % select random from top prob%
+        index = randperm(ceil(n*prob), 1);
         parentA = pop(index,:);
         pop(index,:) = [];
-        parentB = pop(randperm(ceil(n/10), 1),:);
+        parentB = pop(randperm(ceil(n*prob), 1),:);
         
     elseif (selection == 3)
         % Tournament Selection

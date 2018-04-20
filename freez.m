@@ -13,6 +13,13 @@ function handles = freez (handles, mode)
         handles.pm3 = handles.popupmenu3.Enable;
         handles.pm4 = handles.popupmenu4.Enable;
         handles.pm5 = handles.popupmenu5.Enable;
+        handles.pm6 = handles.popupmenu6.Enable;
+        handles.ed1 = handles.edit1.Enable;
+        handles.ed2 = handles.edit2.Enable;
+        handles.ed3 = handles.edit3.Enable;
+        handles.ed5 = handles.edit5.Enable;
+        handles.ed6 = handles.edit6.Enable;
+        handles.ed7 = handles.edit7.Enable;
         
         handles.radiobutton1.Enable = 'off';
         handles.radiobutton2.Enable = 'off';
@@ -27,6 +34,13 @@ function handles = freez (handles, mode)
         handles.popupmenu3.Enable = 'off';
         handles.popupmenu4.Enable = 'off';
         handles.popupmenu5.Enable = 'off';
+        handles.popupmenu6.Enable = 'off';
+        handles.edit1.Enable = 'off';
+        handles.edit2.Enable = 'off';
+        handles.edit3.Enable = 'off';
+        handles.edit5.Enable = 'off';
+        handles.edit6.Enable = 'off';
+        handles.edit7.Enable = 'off';
     elseif (mode == 0)
         handles.radiobutton1.Enable = handles.rb1;
         handles.radiobutton2.Enable = handles.rb2;
@@ -41,5 +55,12 @@ function handles = freez (handles, mode)
         handles.popupmenu3.Enable = handles.pm3;
         handles.popupmenu4.Enable = handles.pm4;
         handles.popupmenu5.Enable = handles.pm5;
+        handles.popupmenu6.Enable = handles.pm6;
+        handles.edit1.Enable = handles.ed1;
+        handles.edit2.Enable = handles.ed2;
+        handles.edit3.Enable = handles.ed3;
+        handles.edit5.Enable = handles.ed5;
+        handles.edit6.Enable = handles.ed6;
+        handles.edit7.Enable = handles.ed7;
     end
 end
