@@ -42,9 +42,11 @@ function handles = brute(handles)
                 end
                 handles.permutation = precompute(j,:);
                 dists = 1:ceil(z/p);
+                cities = handles.cities;
+                metric = handles.metric;
                 
                 parfor j = 1:ceil(z/p)
-                    dists(j) = distance(handles.cities(precompute(j,:),:), handles.metric);
+                    dists(j) = distance(cities(precompute(j,:),:), metric);
                 end
                 
                 [d, index] = min(dists);

@@ -49,6 +49,8 @@ function TSP_GUI_OpeningFcn(hObject, ~, handles, varargin)
     handles.pb3 = handles.pushbutton3.Enable;
     handles.pb4 = handles.pushbutton4.Enable;
     handles.pb5 = handles.pushbutton5.Enable;
+    handles.pb6 = handles.pushbutton6.Enable;
+    handles.pb7 = handles.pushbutton7.Enable;
     handles.pm1 = handles.popupmenu1.Enable;
     handles.cb1 = handles.checkbox1.Enable;
     handles.pm3 = handles.popupmenu3.Enable;
@@ -270,12 +272,151 @@ function pushbutton1_Callback(hObject, ~, handles)
         pause(0.0);
         tic;
         handles = brute(handles);
+        
+%{        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+toc;
+
+for i = 1:6
+    handles.CoC = handles.CoC+1;
+    handles = addCity(handles, 1);
+    handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+    handles.bestSolution = handles.cities; % Current best solution
+    handles.permCities = handles.cities;
+    handles.permutation = 1:handles.CoC;
+    tic;
+    handles = brute(handles);
+    a(i) = toc;
+    disp(i);
+end
+
+plot(a);
+ylabel('Èas');
+xlabel('Poèet miest');
+xticklabels({'6','7','8','9','10','11','12'});
+set(gcf,'color','w');
+set(gca,'YScale','log');
+legend('Sériový výpoèet','Upravený sériový výpoèet', '1 worker', '2 workre', '3 workre', '4 workre', 'Location','northwest');
+set(findall(gca, 'Type', 'Line'),'LineWidth',1.5);
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%}        
+        
     elseif (handles.alg == 2)
         handles.text7.String = {'Running greedy...'};
         handles = freez(handles, 1);
         pause(0.0);
         tic;
         handles = greedy(handles);
+
+%{        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    s(1) = toc;
+    for i = 2:100
+        handles.CoC = handles.CoC + 10;
+        handles = addCity(handles, 10);
+        handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+        handles.bestSolution = handles.cities;
+        tic;
+        handles = greedy(handles);
+        s(i) = toc;
+        disp(i);
+    end
+    
+    %%%%%%%%%%%%%%%%%%
+    parpool(1);
+    handles = greedy(handles);
+    handles.CoC = handles.CoC - 1000;
+    handles = addCity(handles, -1000);
+    handles.checkbox1.Value = 1;
+    
+    for i = 1:100
+        handles.CoC = handles.CoC + 10;
+        handles = addCity(handles, 10);
+        handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+        handles.bestSolution = handles.cities;
+        tic;
+        handles = greedy(handles);
+        w1(i) = toc;
+        disp(i);
+    end
+    
+    poolobj = gcp('nocreate');
+    delete(poolobj);
+    %%%%%%%%%%%%%%%%%    
+    parpool(2);
+    handles = greedy(handles);
+    handles.CoC = handles.CoC - 1000;
+    handles = addCity(handles, -1000);
+    handles.checkbox1.Value = 1;
+    
+    for i = 1:100
+        handles.CoC = handles.CoC + 10;
+        handles = addCity(handles, 10);
+        handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+        handles.bestSolution = handles.cities;
+        tic;
+        handles = greedy(handles);
+        w2(i) = toc;
+        disp(i);
+    end
+    
+    poolobj = gcp('nocreate');
+    delete(poolobj);
+    %%%%%%%%%%%%%%%%%%
+    parpool(3);
+    handles = greedy(handles);
+    handles.CoC = handles.CoC - 1000;
+    handles = addCity(handles, -1000);
+    handles.checkbox1.Value = 1;
+    
+    for i = 1:100
+        handles.CoC = handles.CoC + 10;
+        handles = addCity(handles, 10);
+        handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+        handles.bestSolution = handles.cities;
+        tic;
+        handles = greedy(handles);
+        w3(i) = toc;
+        disp(i);
+    end
+    
+    poolobj = gcp('nocreate');
+    delete(poolobj);
+    %%%%%%%%%%%%%%%%%    
+    parpool(4);
+    handles = greedy(handles);
+    handles.CoC = handles.CoC - 1000;
+    handles = addCity(handles, -1000);
+    handles.checkbox1.Value = 1;
+    
+    for i = 1:100
+        handles.CoC = handles.CoC + 10;
+        handles = addCity(handles, 10);
+        handles.bestDist = distance(handles.cities, handles.metric); % Current best distance
+        handles.bestSolution = handles.cities;
+        tic;
+        handles = greedy(handles);
+        w4(i) = toc;
+        disp(i);
+    end
+    
+    poolobj = gcp('nocreate');
+    delete(poolobj);
+    a(:,1) = s;
+    a(:,2) = w1;
+    a(:,3) = w2;
+    a(:,4) = w3;
+    a(:,5) = w4;
+    plot(a);
+    xlabel('Poèet miest');
+    xticklabels({'0','100','200','300','400','500','600','700','800','900','1000'});
+    ylabel('Èas');
+    set(gcf,'color','w');
+    legend('Sériový výpoèet', '1 worker', '2 workre', '3 workre', '4 workre', 'Location','northwest');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+%}
+        
     elseif (handles.alg == 3)
         handles.fitness = zeros(handles.CoP, 1);
         handles.bestFitness = 0;
@@ -337,8 +478,13 @@ function pushbutton5_Callback(hObject, ~, handles)
         handles.pushbutton5.String = 'Stop workers';
         handles.text7.String = {'Workers have been started...'};
     else
+        handles = freez(handles, 1);
+        handles.text7.String = {'Stopping workers...'};
+        pause(0.0);
         delete(poolobj);
+        handles = freez(handles, 0);
         handles.pushbutton5.String = 'Start workers';
+        handles.text7.String = {'Workers have been stopped...'};
     end    
     
 guidata(hObject, handles);
