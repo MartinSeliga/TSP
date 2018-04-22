@@ -52,9 +52,11 @@ function handles = genetic(handles)
     hprobmutate = handles.probmutate;
     htop = handles.top;
     
+    handles.test(1) = handles.bestDist;
+    
     % next generations
     for i = 2:handles.generations
-        
+
         % initialize new population from the previous one sorted by fitness
         [newFitness, order] = sort(newFitness, 'descend');
         newPopulation = newPopulation(order(:,1),:);
@@ -174,6 +176,8 @@ function handles = genetic(handles)
         if (handles.bestFitness > handles.fit)
             break;
         end
+        
+        handles.test(i) = handles.bestDist;
     end
     cla(handles.axes1);
     draw(handles, 3);
