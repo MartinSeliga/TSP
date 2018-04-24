@@ -52,8 +52,6 @@ function handles = genetic(handles)
     hprobmutate = handles.probmutate;
     htop = handles.top;
     
-    handles.test(1) = handles.bestDist;
-    
     % next generations
     for i = 2:handles.generations
 
@@ -75,7 +73,7 @@ function handles = genetic(handles)
         % (1:part -> Survivors for new population)
         if (handles.checkbox1.Value == 1)
             fitness = handles.fitness;
-            parfor j = 1:ceil((n-part)/2)
+            parfor j = ceil(part/2)+1:ceil((n-part)/2)
                 
                 % Selection
                 [parentA, parentB] = selection(newPopulation, fitness,...
@@ -176,8 +174,6 @@ function handles = genetic(handles)
         if (handles.bestFitness > handles.fit)
             break;
         end
-        
-        handles.test(i) = handles.bestDist;
     end
     cla(handles.axes1);
     draw(handles, 3);

@@ -142,7 +142,7 @@ function [childA, childB] = crossover(parentA, parentB, crossover)
         end
         
     elseif (crossover == 4)
-        % my own :)
+        % my own :) ... not a good one, really
         same = find(parentA==parentB);
         childA = zeros(1, length(parentA));
         childA(same) = parentA(same);

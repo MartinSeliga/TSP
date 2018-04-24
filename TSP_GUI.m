@@ -408,7 +408,7 @@ set(findall(gca, 'Type', 'Line'),'LineWidth',1.5);
     a(:,3) = w2;
     a(:,4) = w3;
     a(:,5) = w4;
-    plot(a);
+    plot(q3);
     xlabel('Poèet miest');
     xticklabels({'0','100','200','300','400','500','600','700','800','900','1000'});
     ylabel('Èas');
